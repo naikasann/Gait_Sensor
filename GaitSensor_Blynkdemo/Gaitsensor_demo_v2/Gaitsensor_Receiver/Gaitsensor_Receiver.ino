@@ -23,9 +23,10 @@ char auth[] = "J1t4Y14Q2eNR3r6cN2zfEwZaewck3kuY";
 BluetoothSerial SerialBT;
 #define DEVICE_NAME "Gaitsensor_Receiver"
 // child device mac address.
-String MACadd = "50:02:91:8A:57:6A";
-uint8_t address[6]  = {0x50, 0x02, 0x91, 0x8A, 0x57, 0x6A};
+String MACadd = "50:02:91:8A:5B:26";
+uint8_t address[6]  = {0x50, 0x02, 0x91, 0x8A, 0x5B, 0x26};
 bool device_connected = false;
+char recv;
 
 // e-textile sensor GPIO pin setting.
 #define TOE_PIN 26
@@ -46,6 +47,16 @@ bool heel_state;
 // gait state chenge => True.
 // Send gait state send to Blynk app.
 bool isChange = false;
+
+int right_steps = 0;
+int left_steps = 0;
+
+int left_swingtime = 0;
+int right_swingtime = 0;
+int right_standtime = 0;
+int left_standtime = 0;
+int right_both_foottime = 0;
+int left_both_foottime = 0;
 
 // Device setting function.
 void setup(){
@@ -97,7 +108,7 @@ void setup(){
 void loop(){
     // for Moving average filter.
     float ave = 0.0;
-
+    
     /*=================== toe measure ===================*/
     // do Low path filter (Moving average filter)
     for(int i = FILTER - 1; i > 0; i--) toe_filter[i] = toe_filter[i - 1];
@@ -157,15 +168,37 @@ void loop(){
     /*===================================================*/
 
     if (SerialBT.available()) {
-        char recv = (char)SerialBT.read();
+        /* Transmit the status of the gait. The state is 1~4.
+         * state = 0 : stand.
+         * state = 1 : toe.
+         * state = 2  : swing.
+         * state = 3 : heel.
+         * This data is analyzed on the master device to analyze the gait on the slave device.*/
+        recv = (char)SerialBT.read();
         if(recv == '0'){
             Blynk.virtualWrite(V2, 1);  Blynk.virtualWrite(V3, 1);
         }else if(recv == '1'){
             Blynk.virtualWrite(V2, 1);  Blynk.virtualWrite(V3, 0);
         }else if(recv == '2'){
+            if(!toe_state && !heel_state){
+                left_both_foottime = millis() - left_both_foottime;
+            }else{
+                left_both_foottime = 0;
+            }
+            Blynk.virtualWrite(V10 ,left_both_foottime);
+            right_swingtime = millis();
+            right_standtime = millis() - right_standtime;
             Blynk.virtualWrite(V2, 0);  Blynk.virtualWrite(V3, 0);
+            Blynk.virtualWrite(V7, right_standtime);
         }else if(recv == '3'){
+            // Count up your right steps.
+            right_steps++;
+            right_both_foottime = millis();
+            right_swingtime = millis() - right_swingtime;
+            right_standtime = millis();
+            Blynk.virtualWrite(V5, right_steps);
             Blynk.virtualWrite(V2, 0);  Blynk.virtualWrite(V3, 1);
+            Blynk.virtualWrite(V9, right_swingtime);
         }
     }
 
@@ -173,8 +206,8 @@ void loop(){
         /* Transmit the status of the gait. The state is 1~4.
          * state = 0 : stand.
          * state = 1 : toe.
-         * state = 3 : swing.
-         * state = 4 : heel.
+         * state = 2 : swing.
+         * state = 3 : heel.
          * This data is analyzed on the master device to analyze the gait on the slave device.*/
         int state;
 
@@ -185,8 +218,30 @@ void loop(){
         else state = 3;
 
         // stand => Atom lite LED green. other state => blue.
-        if(state == 2)  M5.dis.drawpix(0, 0x000070);
-        else  M5.dis.drawpix(0, 0x700000);
+        if(state == 0){
+            M5.dis.drawpix(0, 0x700000);
+        }else if(state == 1){
+            M5.dis.drawpix(0, 0x700000);
+        }else if(state == 2){
+            if(recv != 2){
+                right_both_foottime = millis() - right_both_foottime;
+            }else{
+                right_both_foottime = 0;
+            }
+            left_swingtime = millis();
+            left_standtime = millis() - left_standtime;
+            M5.dis.drawpix(0, 0x000070);
+            Blynk.virtualWrite(V6, left_standtime);
+            Blynk.virtualWrite(V11, right_both_foottime);
+        }else{
+            // Count up your left steps.
+            left_swingtime = millis() - left_swingtime;
+            left_standtime = millis();
+            left_steps++;
+            Blynk.virtualWrite(V4, left_step s);
+            Blynk.virtualWrite(V8, left_swingtime);
+            M5.dis.drawpix(0, 0x700000);
+        }
 
         // for debug.
         Serial.println("toe state : " + String(toe_state) + "heelstate : " + String(heel_state));
