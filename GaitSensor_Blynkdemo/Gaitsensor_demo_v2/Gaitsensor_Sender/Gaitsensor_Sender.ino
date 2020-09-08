@@ -23,8 +23,8 @@ bool device_connect = false;
 #define SPI_SPEED 115200
 
 // e-textile sensor GPIO pin setting.
-#define TOE_PIN 26
-#define HEEL_PIN 32
+#define TOE_PIN 32
+#define HEEL_PIN 26
 
 // for LowPath filter.(N)
 #define FILTER 500

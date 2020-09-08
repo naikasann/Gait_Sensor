@@ -23,8 +23,8 @@ char auth[] = "J1t4Y14Q2eNR3r6cN2zfEwZaewck3kuY";
 BluetoothSerial SerialBT;
 #define DEVICE_NAME "Gaitsensor_Receiver"
 // child device mac address.
-String MACadd = "50:02:91:8A:5B:26";
-uint8_t address[6]  = {0x50, 0x02, 0x91, 0x8A, 0x5B, 0x26};
+String MACadd = "50:02:91:8A:57:6A";
+uint8_t address[6]  = {0x50, 0x02, 0x91, 0x8A, 0x57, 0x6A};
 bool device_connected = false;
 char recv;
 
@@ -67,7 +67,6 @@ void setup(){
     Serial.println("Bluetooth connection waiting...");
      // for M5Atom Lite
     M5.begin(true, false, true);
-    M5.dis.drawpix(0, 0x0000f0);
 
     // etextile pinMode setting
     pinMode(TOE_PIN,  INPUT_PULLUP);
@@ -87,9 +86,8 @@ void setup(){
     if(device_connected) {
         Serial.println("Connected Succesfully!");
     } else {
-      while(!SerialBT.connected(10000)) {
+      while(!SerialBT.connected(1000000)) {
         Serial.println("Failed to connect. Make sure remote device is available and in range, then restart app."); 
-        M5.dis.drawpix(0, 0x007000);
       }
     }
     // disconnect() may take upto 10 secs max
@@ -99,6 +97,7 @@ void setup(){
     // this would reconnect to the name(will use address, if resolved) or address used with connect(name/address).
     SerialBT.connect();
 
+    M5.dis.drawpix(0, 0x707070);
     Serial.println("Measure start...!");
     Serial.println("state = 0 : stand. state = 1 : toe.");
     Serial.println("state = 3 : swing. state = 4 : heel.");
@@ -238,7 +237,7 @@ void loop(){
             left_swingtime = millis() - left_swingtime;
             left_standtime = millis();
             left_steps++;
-            Blynk.virtualWrite(V4, left_step s);
+            Blynk.virtualWrite(V4, left_steps);
             Blynk.virtualWrite(V8, left_swingtime);
             M5.dis.drawpix(0, 0x700000);
         }
