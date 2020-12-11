@@ -2,7 +2,7 @@
 #define SPI_SPEED 115200
 
 // e-textile sensor 
-#define TOO_PIN 25
+#define TOO_PIN 32
 #define HEEL_PIN 26
 
 void setup() {

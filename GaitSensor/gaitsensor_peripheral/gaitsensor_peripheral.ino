@@ -26,7 +26,7 @@ BluetoothSerial SerialBT;
 #define SPI_SPEED 115200
 
 // sensor pin defined
-#define TOO_PIN 25
+#define TOO_PIN 32
 #define HEEL_PIN 26
 
 // for LowPath filter.(N)
