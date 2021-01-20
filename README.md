@@ -45,14 +45,6 @@
 
 センサーはetextileセンサーを用いている。
 
----
-
-## author & programmer & special thanks
-
-- yamazaki [Twitter](https://twitter.com/yamazakisum)
-- 3i君
-
-作成の管理等はyamazakiが行ってます。責任等は全部yamazakiに言ってね。
 
 ## 参加した学会
 
