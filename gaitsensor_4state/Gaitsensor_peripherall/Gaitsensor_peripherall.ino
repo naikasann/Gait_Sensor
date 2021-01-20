@@ -51,7 +51,7 @@ int sub_foot_bufftime = 0;
 // Number of gait parameters to be retrieved (no need to change!)
 #define WALK_STATE_COUNT 10
 // [right heel, stand, toe, swing, left heel, stand, toe, swing, bothtime1, bothtime2]
-int walkstime[WALK_STATE_COUNT] = {0};
+long walkstime[WALK_STATE_COUNT] = {0};
 
 // function : Assign the value to the specified index of walkstime.
 void set_walktime(int index, int inputdata){
